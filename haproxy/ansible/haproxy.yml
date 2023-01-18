@@ -1,0 +1,34 @@
+- name: Configuration load balancer
+  hosts: lb
+  become: true
+  tasks:
+    - name: "install haproxy"
+      package:
+        name: haproxy
+        state: present
+    - name: " configure haproxy.cfg file"
+      template:
+        src: "./haproxy.cfg"
+        dest: "/etc/haproxy/haproxy.cfg"
+    - name: "haproxy service start"
+      service:
+        name: haproxy
+        state: restarted
+
+- name: Configuration web server
+  hosts: workers
+  become: true
+  tasks:
+    - name: "Installing httpd on workers nodes"
+      package:
+        name: httpd
+        state: present
+    - name: "copying data to target node"
+      copy:
+        dest: "/var/www/html/index.html"
+        content: "Hello! It's worker node"
+    - name: "Httpd service start"
+      service:
+        name: httpd
+        state: started
+        enabled: yes
