@@ -1,0 +1,5 @@
+/haproxy/terraform/.terraform/
+/haproxy/terraform/terraform.tfstate
+/haproxy/terraform/terraform.tfstate.backup
+/haproxy/terraform/terraform.tfvars
+/haproxy/terraform/.terraform.lock.hcl
