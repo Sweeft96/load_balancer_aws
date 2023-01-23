@@ -4,7 +4,7 @@ Different variants to configure load balancer on AWS
 ## First variant (HAProxy)
 After the launch terraform
 ```
-$ terraform init
+$ terraform apply
 ```
 One server is being created for HAProxy and three more servers.
 We get an automatically configured haproxy.cfg and inventory file for ansible.
