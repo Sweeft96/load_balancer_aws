@@ -4,40 +4,19 @@ provider "aws" {
   region = var.region
 }
 
-data "aws_ami" "latest_amazon_linux" {
-  owners      = ["amazon"]
-  most_recent = true
-  filter {
-    name   = "name"
-    values = ["amzn2-ami-hvm-*-x86_64-gp2"]
-  }
-}
-
 resource "aws_key_pair" "my_key" {
   key_name   = var.key_name
   public_key = var.public_key
 }
 resource "aws_default_vpc" "default" {}
 
-resource "aws_eip" "HaProxy_IP" {
+resource "aws_eip" "HaProxy_IP" { # Create static IP for haproxy server
   instance = aws_instance.My_HaProxy.id
-}
-
-resource "aws_eip" "Worker_IP_1" {
-  instance = aws_instance.My_Worker[0].id
-}
-
-resource "aws_eip" "Worker_IP_2" {
-  instance = aws_instance.My_Worker[1].id
-}
-
-resource "aws_eip" "Worker_IP_3" {
-  instance = aws_instance.My_Worker[2].id
 }
 
 resource "aws_instance" "My_Worker" {
   count = 3
-  ami = data.aws_ami.latest_amazon_linux.id
+  ami = "ami-0a261c0e5f51090b1"
   instance_type = "t2.micro"
   key_name = var.key_name
   vpc_security_group_ids = [aws_security_group.my_haproxy.id]
@@ -49,8 +28,8 @@ resource "aws_instance" "My_Worker" {
 }
 
 resource "aws_instance" "My_HaProxy" {
-  ami = data.aws_ami.latest_amazon_linux.id
-  instance_type = "t2.micro"
+  ami = "ami-0a261c0e5f51090b1"
+  instance_type = var.instance_type
   key_name = var.key_name
   vpc_security_group_ids = [aws_security_group.my_haproxy.id]
   lifecycle {
@@ -85,4 +64,21 @@ dynamic "ingress" {
   tags = {
     Name = "Security_Group_For_HaProxy",
   }
+}
+resource "local_file" "hosts_cfg" {
+  content = templatefile("ansible_inventory.tpl",
+    {
+      haproxy = aws_instance.My_HaProxy.*.public_ip
+      workers_public = aws_instance.My_Worker.*.public_ip
+    }
+  )
+  filename = "../ansible/inventory"
+}
+resource "local_file" "haproxy_cfg" {
+  content = templatefile("haproxy.tpl",
+    {
+      workers_private = aws_instance.My_Worker.*.private_ip
+    }
+  )
+  filename = "../ansible/haproxy.cfg"
 }

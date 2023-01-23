@@ -69,6 +69,6 @@ frontend  load_balancer *:80
 #---------------------------------------------------------------------
 backend workers
     balance     roundrobin
-    server      worker 172.31.17.47:80 check
-    server      worker 172.31.22.142:80 check
-    server      worker 172.31.31.9:80 check
+%{ for ip in workers_private ~}
+    server      worker ${ip}:80 check
+%{ endfor ~}

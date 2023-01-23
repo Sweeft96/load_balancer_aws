@@ -7,6 +7,9 @@ variable secret_key {
 variable region {
   description = "Region"
 }
+variable instance_type {
+  description = "Instance type"
+}
 variable key_name {
   description = "Key name"
 }
