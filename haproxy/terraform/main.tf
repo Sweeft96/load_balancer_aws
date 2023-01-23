@@ -66,7 +66,7 @@ dynamic "ingress" {
   }
 }
 resource "local_file" "hosts_cfg" {
-  content = templatefile("ansible_inventory.tpl",
+  content = templatefile("./templates/ansible_inventory.tpl",
     {
       haproxy = aws_instance.My_HaProxy.*.public_ip
       workers_public = aws_instance.My_Worker.*.public_ip
@@ -75,7 +75,7 @@ resource "local_file" "hosts_cfg" {
   filename = "../ansible/inventory"
 }
 resource "local_file" "haproxy_cfg" {
-  content = templatefile("haproxy.tpl",
+  content = templatefile("./templates/haproxy.tpl",
     {
       workers_private = aws_instance.My_Worker.*.private_ip
     }
